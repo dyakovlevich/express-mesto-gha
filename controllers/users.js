@@ -6,21 +6,37 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then(user => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(400).send({ message: 'переданы некорректные данные'});
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
+};
+
+module.exports.getAllUsers = (req, res) => {
+  User.find({})
+    .then(user => res.send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
     });
 };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Пользователь по указанному _id не найден.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
 
-module.exports.getAllUsers = (req, res) => {
-  User.find({})
-    .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
-};
+//.catch(err => res.status(500).send({ message: `Произошла ошибка ${err.name} c текстом ${err.message}` }));
+
 
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
@@ -33,7 +49,15 @@ module.exports.updateUser = (req, res) => {
       }
   )
     .then(user => res.send({ data: user }))
-    .catch(user => res.status(500).send({ message: "Данные не прошли валидацию. Либо произошло что-то совсем немыслимое" }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.'});
+      }
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Пользователь с указанным _id не найден.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
 
 module.exports.updateUserAvatar = (req, res) => {
@@ -47,5 +71,13 @@ module.exports.updateUserAvatar = (req, res) => {
       }
   )
     .then(user => res.send({ data: user }))
-    .catch(user => res.status(500).send({ message: "Данные не прошли валидацию. Либо произошло что-то совсем немыслимое" }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.'});
+      }
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Пользователь с указанным _id не найден.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
