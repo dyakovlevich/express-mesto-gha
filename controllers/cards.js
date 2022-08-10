@@ -16,12 +16,7 @@ module.exports.createCard = (req, res) => {
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
-      }
-      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
-    });
+    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию.' }));
 };
 
 module.exports.deleteCardById = (req, res) => {
