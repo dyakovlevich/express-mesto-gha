@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -16,7 +17,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '62f276fd7f53b3957d1afdb0' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '62f276fd7f53b3957d1afdb0',
   };
   next();
 });
@@ -24,11 +25,9 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-//Ошибки 404.
-app.all('*', function (req, res) {
-  return res.status(404).send({ message: 'Не найдено.' });
-});
+// Ошибки 404.
+app.all('*', (req, res) => res.status(404).send({ message: 'Не найдено.' }));
 
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`)
-})
+  console.log(`App listening on port ${PORT}`);
+});
