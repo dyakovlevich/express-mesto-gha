@@ -41,13 +41,15 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then(card => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
-      }
-      if (err.name === 'CastError') {
+    .then(card => {
+      if (!card) {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки.'});
+      }
+      return res.send(card)
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
       }
       return res.status(500).send({ message: 'Ошибка по умолчанию.' });
     });
@@ -60,14 +62,16 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-  .then(card => res.send({ data: card }))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
-    }
-    if (err.name === 'CastError') {
-      return res.status(404).send({ message: 'Передан несуществующий _id карточки.'});
-    }
-    return res.status(500).send({ message: 'Ошибка по умолчанию.' });
-  });
+    .then(card => {
+      if (!card) {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки.'});
+      }
+      return res.send(card)
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
