@@ -15,7 +15,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
@@ -50,7 +50,7 @@ module.exports.updateUser = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
@@ -72,7 +72,7 @@ module.exports.updateUserAvatar = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
