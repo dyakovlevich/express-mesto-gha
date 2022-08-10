@@ -5,18 +5,33 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then(card => res.send({ data: card }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then(card => res.send({ data: card }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then(card => res.send({ data: card }))
+    .then(card => {
+      if (!card) {
+        return res.status(404).send({ message: ' Карточка с указанным _id не найдена.'});
+      }
+      return res.send(card)
+    })
     .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
@@ -27,8 +42,17 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .then(card => res.send({ data: card }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
-}
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
+      }
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки.'});
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
+
+};
 
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
@@ -37,5 +61,13 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
   .then(card => res.send({ data: card }))
-  .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
-}
+  .catch((err) => {
+    if (err.name === 'ValidationError') {
+      return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.'});
+    }
+    if (err.name === 'CastError') {
+      return res.status(404).send({ message: 'Передан несуществующий _id карточки.'});
+    }
+    return res.status(500).send({ message: 'Ошибка по умолчанию.' });
+  });
+};
