@@ -18,3 +18,6 @@ Mongoose
 
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
+
+**Ссылки**
+* [Ссылка на проект](https://github.com/dyakovlevich/express-mesto-gha)
