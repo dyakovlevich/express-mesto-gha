@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-//Ошибки 404
+//Ошибки 404.
 app.all('*', function (req, res) {
   return res.status(404).send({ message: 'Не найдено.' });
 });
