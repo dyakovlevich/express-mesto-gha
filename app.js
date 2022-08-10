@@ -8,7 +8,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// подключаемся к серверу mongo
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   // useNewUrlParser: true,
   // useCreateIndex: true,
@@ -25,8 +24,9 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-// 62f276fd7f53b3957d1afdb0
-
+app.all('*', function (req, res) {
+  return res.status(404).send({ message: 'Не найдено.' });
+});
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`)
