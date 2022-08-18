@@ -5,6 +5,7 @@ const {
 } = require('../controllers/users');
 const { isLinkRegex } = require('../utils/isLink');
 
+router.get('/me', getCurrentUser);
 router.get(
   '/:userId',
   celebrate({
@@ -14,7 +15,7 @@ router.get(
   }),
   getUserById,
 );
-router.get('/me', getCurrentUser);
+
 router.get('/', getAllUsers);
 router.patch(
   '/me/avatar',
