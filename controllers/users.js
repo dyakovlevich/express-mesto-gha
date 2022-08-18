@@ -37,17 +37,6 @@ module.exports.createUser = (req, res) => {
     }))
     .then((user) => res.send(user))
     .catch((err) => res.status(400).send(err));
-
-  // User.create({
-  //   name, about, avatar, email, password,
-  // })
-  //   .then((user) => res.send(user))
-  //   .catch((err) => {
-  //     if (err.name === 'ValidationError') {
-  //       return res.status(castErrorCode).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-  //     }
-  //     return res.status(defaultErrorCode).send({ message: 'Ошибка по умолчанию.' });
-  //   });
 };
 
 module.exports.getAllUsers = (req, res) => {
