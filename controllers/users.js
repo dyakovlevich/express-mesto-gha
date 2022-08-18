@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-const NotFoundError = require('../errors/not-found-err');
-const DuplicateError = require('../errors/duplicate-err');
+const NotFoundError = require('../errors/NotFoundError');
+const DuplicateError = require('../errors/DuplicateError');
 
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
