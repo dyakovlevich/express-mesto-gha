@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
-const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
