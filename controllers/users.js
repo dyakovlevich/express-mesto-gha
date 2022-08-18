@@ -8,6 +8,54 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const DuplicateError = require('../errors/DuplicateError');
 
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  // хешируем пароль
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash, // записываем хеш в базу
+    }))
+    .then((user) => {
+      const { _id } = user;
+      res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
+    })
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new DuplicateError('Пользователь уже существует'));
+      }
+      next();
+    });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+      });
+      res.send({ token });
+    })
+    .catch(next);
+};
+
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
   User.find({ _id })
@@ -65,6 +113,7 @@ module.exports.createUser = (req, res, next) => {
       if (err.code === 11000) {
         next(new DuplicateError('Пользователь уже существует'));
       }
+      next();
     });
 };
 
@@ -106,18 +155,4 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      });
-      res.send({ token });
-    })
-    .catch(next);
-};
+

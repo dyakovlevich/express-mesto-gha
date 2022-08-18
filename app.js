@@ -22,8 +22,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 // роуты, не требующие авторизации,
 // например, регистрация и логин
-app.post('/signup', createUser);
-app.post('/signin', login);
+
+app.use('/', require('./routes/auth'));
 
 // авторизация
 app.use(auth);
@@ -38,9 +38,12 @@ app.use(errors()); // обработчик ошибок celebrate
 
 // наш централизованный обработчик
 app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
-  res.status(statusCode).send({ message });
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? message
+      : message,
+  });
   next();
 });
 
