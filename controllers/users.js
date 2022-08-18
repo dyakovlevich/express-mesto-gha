@@ -44,6 +44,9 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Пользователь не найден'));
+      }
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
       });
