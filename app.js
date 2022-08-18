@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
+const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 
@@ -31,6 +32,14 @@ app.use('/cards', require('./routes/cards'));
 
 // Ошибки 404.
 app.all('*', (req, res) => res.status(404).send({ message: 'Не найдено.' }));
+
+// обработчики ошибок
+app.use(errors()); // обработчик ошибок celebrate
+
+// наш централизованный обработчик
+// app.use((err, req, res, next) => {
+//   // ...
+// });
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
