@@ -34,7 +34,7 @@ module.exports.createUser = (req, res) => {
       avatar,
       email,
       password: hash, // записываем хеш в базу
-    }).select('+password'))
+    }))
     .then((user) => res.send(user))
     .catch((err) => res.status(400).send(err));
 
