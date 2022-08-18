@@ -37,9 +37,12 @@ app.all('*', (req, res) => res.status(404).send({ message: 'Не найдено.
 app.use(errors()); // обработчик ошибок celebrate
 
 // наш централизованный обработчик
-// app.use((err, req, res, next) => {
-//   // ...
-// });
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+  res.status(statusCode).send({ message });
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

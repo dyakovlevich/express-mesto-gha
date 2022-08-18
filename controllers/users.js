@@ -5,23 +5,39 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-const castErrorCode = 400;
-const notFoundErrorCode = 404;
-const defaultErrorCode = 500;
+const NotFoundError = require('../errors/not-found-err');
+const DuplicateError = require('../errors/duplicate-err');
 
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
   User.find({ _id })
     .then((user) => {
       if (!user) {
-        return res.status(notFoundErrorCode).send({ message: 'Пользователь по указанному _id не найден.' });
+        next(new NotFoundError('Пользователь не найден'));
       }
       return res.send(user);
     })
     .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Пользователь не найден'));
+      }
+      return res.send(user);
+    })
+    .catch(next);
+};
+
+module.exports.getAllUsers = (req, res, next) => {
+  User.find({})
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -35,33 +51,24 @@ module.exports.createUser = (req, res) => {
       email,
       password: hash, // записываем хеш в базу
     }))
-    .then((user) => res.send(user))
-    .catch((err) => res.status(400).send(err));
-};
-
-module.exports.getAllUsers = (req, res) => {
-  User.find({})
-    .then((user) => res.send(user))
-    .catch(() => res.status(defaultErrorCode).send({ message: 'Ошибка по умолчанию.' }));
-};
-
-module.exports.getUserById = (req, res) => {
-  User.findById(req.params.userId)
     .then((user) => {
-      if (!user) {
-        return res.status(notFoundErrorCode).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
-      return res.send(user);
+      const { _id } = user;
+      res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(castErrorCode).send({ message: 'Переданы некорректный _id пользователя.' });
+      if (err.code === 11000) {
+        next(new DuplicateError('Пользователь уже существует'));
       }
-      return res.status(defaultErrorCode).send({ message: 'Ошибка по умолчанию.' });
     });
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -73,19 +80,14 @@ module.exports.updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(notFoundErrorCode).send({ message: 'Пользователь по указанному _id не найден.' });
+        next(new NotFoundError('Пользователь не найден'));
       }
       return res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(castErrorCode).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      }
-      return res.status(defaultErrorCode).send({ message: 'Ошибка по умолчанию.' });
-    });
+    .catch(next);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -97,16 +99,11 @@ module.exports.updateUserAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(notFoundErrorCode).send({ message: 'Пользователь по указанному _id не найден.' });
+        next(new NotFoundError('Пользователь не найден'));
       }
       return res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(castErrorCode).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
-      }
-      return res.status(defaultErrorCode).send({ message: 'Ошибка по умолчанию.' });
-    });
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
