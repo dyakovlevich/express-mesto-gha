@@ -32,10 +32,9 @@ module.exports.deleteCardById = (req, res, next) => {
       }
       if (req.user._id === card.owner.toString()) {
         Card.findByIdAndRemove(req.params.cardId)
-          .then((cardrem) => res.send(cardrem))
-          .catch(next);
+          .then((cardrem) => res.send(cardrem));
       }
-      return next(new ForbiddenError('Вы не являетесь владельцем карточки'));
+      return next(new ForbiddenError(req.user._id));
     })
     .catch(next);
 };

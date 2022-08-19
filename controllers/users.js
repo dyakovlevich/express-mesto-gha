@@ -47,7 +47,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       if (!user) {
         next(new NotFoundError('Пользователь не найден'));
       }
-      return res.send(user);
+      return res.send(...user);
     })
     .catch(next);
 };
@@ -154,17 +154,3 @@ module.exports.login = (req, res, next) => {
     })
     .catch(next);
 };
-
-// module.exports.login = (req, res, next) => {
-//   const { email, password } = req.body;
-//
-//   return User.findUserByCredentials(email, password)
-//     .then((user) => {
-//       // создадим токен
-//       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-//
-//       // вернём токен
-//       res.send({ token });
-//     })
-//     .catch(next);
-// };
