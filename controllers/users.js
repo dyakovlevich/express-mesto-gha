@@ -40,22 +40,6 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      });
-      res.send({ token });
-    })
-    .catch(next);
-};
-
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
   User.find({ _id })
@@ -151,6 +135,22 @@ module.exports.updateUserAvatar = (req, res, next) => {
         next(new NotFoundError('Пользователь не найден'));
       }
       return res.send(user);
+    })
+    .catch(next);
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+      });
+      res.send({ token });
     })
     .catch(next);
 };
