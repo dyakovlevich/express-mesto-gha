@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
+const errorHandler = require('./errors/errorHandler');
 
 const { PORT = 3000 } = process.env;
 
@@ -31,21 +32,13 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 // Ошибки 404.
-app.all('*', (req, res, next) => {
-  next(new NotFoundError('Не найдено.'));
-});
+app.all('*', (req, res, next) => next(new NotFoundError('Не найдено.')));
 
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate
 
 // наш централизованный обработчик
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({
-    message: statusCode === 500 ? 'Ошибка сервера' : message,
-  });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
