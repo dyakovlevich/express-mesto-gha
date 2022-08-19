@@ -25,17 +25,19 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  const { cardId } = req.params.cardId;
-  Card.findById(cardId)
+  const deleteCard = () => {
+    Card.findByIdAndRemove(req.params.cardId)
+      .then((card) => res.send(card))
+      .catch(next);
+  };
+
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточки не существует'));
-      }
+      if (!card) next(new NotFoundError('Карточки не существует'));
       if (req.user._id === card.owner.toString()) {
-        Card.findByIdAndRemove(cardId)
-          .then((cardrem) => res.send(cardrem));
+        return deleteCard();
       }
-      return next(new ForbiddenError(req.user._id));
+      return next(new ForbiddenError('Вы не являетесь владельцем карточки'));
     })
     .catch(next);
 };
