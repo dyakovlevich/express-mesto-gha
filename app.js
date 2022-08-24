@@ -6,6 +6,7 @@ const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const errorHandler = require('./errors/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -21,6 +22,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   // useFindAndModify: false
 });
 
+// Подключаем логгер
+app.use(requestLogger);
+
 // роуты, не требующие авторизации,
 // например, регистрация и логин
 app.use('/', require('./routes/auth'));
@@ -33,6 +37,9 @@ app.use('/cards', require('./routes/cards'));
 
 // Ошибки 404.
 app.all('*', (req, res, next) => next(new NotFoundError('Не найдено.')));
+
+// подключаем логгер ошибок
+app.use(errorLogger);
 
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate
